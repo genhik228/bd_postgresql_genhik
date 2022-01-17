@@ -1,0 +1,280 @@
+CREATE TABLE "Кинотеатр"
+(
+    "id_theater_cinema" bigint NOT NULL ,
+    "Название кинотеатра" text COLLATE pg_catalog."default",
+    "Адресс кинотеатра" text COLLATE pg_catalog."default",
+    "Время начала работы" date,
+    "Время завершения работы" date,
+    CONSTRAINT "Cinema_pkey" PRIMARY KEY ("id_theater_cinema"),
+    CONSTRAINT "Cinema_ID_key" UNIQUE ("id_theater_cinema")
+);
+
+CREATE TABLE "Кино залы"
+(
+    "id_cinema_hall" bigint NOT NULL ,
+    "id_theater_cinema" bigint NOT NULL,
+    "Размер экрана" bigint NOT NULL,
+    "Тип экрана" character varying(4) COLLATE pg_catalog."default",
+    "Количество рядов" bigint NOT NULL,
+    "Мест в зале" bigint NOT NULL,
+    CONSTRAINT "Hall_pkey" PRIMARY KEY ("id_cinema_hall"),
+    CONSTRAINT "Hall_ID_key" UNIQUE ("id_cinema_hall"),
+    CONSTRAINT "Cinema_Hall_ID_fkey" FOREIGN KEY ("id_theater_cinema")
+        REFERENCES "Кинотеатр" ("id_theater_cinema") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT "CHECK Тип экрана" CHECK ("Тип экрана"::text = '3D'::text OR "Sex"::text = '2D'::text)
+);
+
+
+
+CREATE TABLE "Мероприятие"
+(
+    "id_event" bigint NOT NULL ,
+    "Тип Мероприятия" character varying(40) COLLATE pg_catalog."default",
+    "Название Мероприятия" text COLLATE pg_catalog."default",
+    "Цена Мероприятия" bigint NOT NULL,
+    "Время начала Мероприятия" date,
+    "Время завершения Мероприятия" date,
+	"Организатор" text COLLATE pg_catalog."default,
+    CONSTRAINT "Event_pkey" PRIMARY KEY ("id_event"),
+    CONSTRAINT "Event_ID_key" UNIQUE ("id_event"),
+    CONSTRAINT "CHECK Еvent" CHECK ("Тип Мероприятия"::text = 'Концерт'::text OR "Тип Мероприятия"::text = 'Выступление'::text OR "Тип Мероприятия"::text = 'Конкурс'::text OR "Тип Мероприятия"::text = 'Кинотеатр'::text)
+);
+
+CREATE TABLE "Мероприятие для кино"
+(
+    "id_event_cinema" bigint NOT NULL ,
+    "id_event" bigint NOT NULL ,
+    "id_theater_cinema" bigint NOT NULL ,
+    CONSTRAINT "Event_pkey" PRIMARY KEY ("id_event_cinema"),
+    CONSTRAINT "Event_ID_key" UNIQUE ("id_event_cinema"),
+
+    CONSTRAINT "id_event_ID_fkey" FOREIGN KEY ("id_event")
+        REFERENCES "Мероприятие" ("id_event") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+
+    CONSTRAINT "Cinema_event_ID_fkey" FOREIGN KEY ("id_theater_cinema")
+        REFERENCES "Кинотеатр" ("id_theater_cinema") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+    
+);
+
+
+
+CREATE TABLE "Импрессарио"
+(
+    "id_impressario" bigint NOT NULL ,
+    "Имя" text COLLATE pg_catalog."default",
+    "Фамилия" text COLLATE pg_catalog."default" ,
+    "Отчество" text COLLATE pg_catalog."default",
+    "Возраст" text COLLATE pg_catalog."default",
+    "Пол" text COLLATE pg_catalog."default",
+    "Род деятельности" text COLLATE pg_catalog."default",
+    "Образование" text COLLATE pg_catalog."default",
+    CONSTRAINT "Impressario_pkey" PRIMARY KEY ("id_impressario"),
+    CONSTRAINT "Impressario_ID_key" UNIQUE ("id_impressario")    
+);
+
+
+
+CREATE TABLE "Артист"
+(
+    "id_artist" bigint NOT NULL ,
+    "Имя" text COLLATE pg_catalog."default",
+    "Фамилия" text COLLATE pg_catalog."default" ,
+    "Отчество" text COLLATE pg_catalog."default",
+    "Возраст" text COLLATE pg_catalog."default",
+    "Пол" text COLLATE pg_catalog."default",
+    "Род деятельности" text COLLATE pg_catalog."default",
+    "Образование" text COLLATE pg_catalog."default",
+    CONSTRAINT "artist_pkey" PRIMARY KEY ("id_artist"),
+    CONSTRAINT "artist_ID_key" UNIQUE ("id_artist") 
+);
+
+
+CREATE TABLE "Продюссирование"
+(   
+
+    "id_produce" bigint NOT NULL ,
+    "id_impressario" bigint NOT NULL ,
+    "id_artist"  bigint NOT NULL ,
+    CONSTRAINT "produce_pkey" PRIMARY KEY ("id_produce"),
+    CONSTRAINT "produce_ID_key" UNIQUE ("id_produce")  ,
+    CONSTRAINT "id_produce_artist_ID_fkey" FOREIGN KEY ("id_artist")
+        REFERENCES "Артист" ("id_artist") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+
+    CONSTRAINT "id_impr_produce_ID_fkey" FOREIGN KEY ("id_impressario")
+        REFERENCES "Импрессарио" ("id_impressario") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
+
+CREATE TABLE "Жанры"
+(  
+    "id_genre" bigint NOT NULL ,
+     "Название жанра" text COLLATE pg_catalog."default",
+    CONSTRAINT "genr_pkey" PRIMARY KEY ("id_genre"),
+    CONSTRAINT "genr_ID_key" UNIQUE ("id_genre")
+);
+
+
+
+CREATE TABLE "Виды жанров для артиста"
+(  
+    "id_genre_art" bigint NOT NULL ,
+    "id_genre" bigint NOT NULL ,
+    "id_artist" bigint NOT NULL ,
+    CONSTRAINT "_genre_artr_pkey" PRIMARY KEY ("id_genre_art"),
+    CONSTRAINT "_genre_art_ID_key" UNIQUE ("id_genre_art"),
+
+    CONSTRAINT "Genre_Artist_ID_fkey" FOREIGN KEY ("id_artist")
+        REFERENCES "Артист" ("id_artist") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    
+    CONSTRAINT "Genre_Impr_ID_fkey" FOREIGN KEY ("id_genre")
+        REFERENCES "Жанры" ("id_genre") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
+CREATE TABLE "Виды мероприятий  для артиста"
+(  
+    "id_event_artist" bigint NOT NULL ,
+    "id_event" bigint NOT NULL ,
+    "id_artist" bigint NOT NULL ,
+
+
+    CONSTRAINT "id_event_artist_pkey" PRIMARY KEY ("id_event_artist"),
+    CONSTRAINT "id_event_artist_ID_key" UNIQUE ("id_event_artist"),
+
+    CONSTRAINT "Genre_Artist_ID_fkey" FOREIGN KEY ("id_event")
+        REFERENCES "Мероприятие" ("id_event") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    
+    CONSTRAINT "Genre_Impr_ID_fkey" FOREIGN KEY ("id_artist")
+        REFERENCES "Артист" ("id_artist") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
+
+
+
+CREATE TABLE "Выступления"
+(  
+    "id_perfomance" bigint NOT NULL ,
+    "id_event" bigint NOT NULL ,
+    "Название Выступления" text COLLATE pg_catalog."default",
+    "Место проведения" text COLLATE pg_catalog."default",
+
+    CONSTRAINT "id_perfomance_pkey" PRIMARY KEY ("id_perfomance"),
+    CONSTRAINT "id_perfomanceID_key" UNIQUE ("id_perfomance"),
+
+    CONSTRAINT "Genre_Artist_ID_fkey" FOREIGN KEY ("id_event")
+        REFERENCES "Мероприятие" ("id_event") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
+
+CREATE TABLE "Концерт"
+(  
+    "id_concert" bigint NOT NULL ,
+    "id_event" bigint NOT NULL ,
+    "Название концерта" text COLLATE pg_catalog."default",
+    "Место проведения" text COLLATE pg_catalog."default",
+    "Имя организатора" text COLLATE pg_catalog."default",
+    "Имя заказчика" text COLLATE pg_catalog."default",
+    CONSTRAINT "id_concert_pkey" PRIMARY KEY ("id_concert"),
+    CONSTRAINT "id_concert_ID_key" UNIQUE ("id_concert"),
+    CONSTRAINT "Genre_Artist_ID_fkey" FOREIGN KEY ("id_event")
+        REFERENCES "Мероприятие" ("id_event") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
+
+
+CREATE TABLE "Конкурсы"
+(  
+    "id_competition" bigint NOT NULL ,
+    "id_event" bigint NOT NULL ,
+    "Название конкурса" text COLLATE pg_catalog."default",
+    "Место проведения" text COLLATE pg_catalog."default",
+    "Имя организатора" text COLLATE pg_catalog."default",
+    "Имя заказчика" text COLLATE pg_catalog."default",
+    "Возрастная категория" text COLLATE pg_catalog."default",
+    "Количество людей для конкурса" bigint NOT NULL,
+
+    CONSTRAINT "id_competition_pkey" PRIMARY KEY ("id_competition"),
+    CONSTRAINT "id_competition_ID_key" UNIQUE ("id_competition"),
+    CONSTRAINT "Genre_Artist_ID_fkey" FOREIGN KEY ("id_event")
+        REFERENCES "Мероприятие" ("id_event") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
+
+CREATE TABLE "Призёры"
+(  
+    "id_victory" bigint NOT NULL ,
+    "Имя победителя" text COLLATE pg_catalog."default",
+    "Занятое место" text COLLATE pg_catalog."default",
+    CONSTRAINT "id_victory_pkey" PRIMARY KEY ("id_victory"),
+    CONSTRAINT "id_victory_ID_key" UNIQUE ("id_victory")
+);
+
+
+
+
+CREATE TABLE "Актёры призёры"
+(  
+    "id_act_pr" bigint NOT NULL ,
+    "id_artist" bigint NOT NULL ,
+    "id_victory" bigint NOT NULL ,
+
+    CONSTRAINT "id_act_pr_pkey" PRIMARY KEY ("id_act_pr"),
+    CONSTRAINT "id_act_pr_ID_key" UNIQUE ("id_act_pr"),
+
+     CONSTRAINT "id_act_pr_ID_fkey" FOREIGN KEY ("id_artist")
+        REFERENCES "Артист" ("id_artist") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    
+     CONSTRAINT "id_victory_pr_ID_fkey" FOREIGN KEY ("id_victory")
+        REFERENCES "Призёры" ("id_victory") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
+
+
+
+
+CREATE TABLE "Виды конкурса и призёров"
+(  
+    "id_compet_priz" bigint NOT NULL ,
+    "id_competition" bigint NOT NULL ,
+    "id_victory" bigint NOT NULL ,
+
+    CONSTRAINT "id_compet_priz_pkey" PRIMARY KEY ("id_compet_priz"),
+    CONSTRAINT "id_compet_priz_ID_key" UNIQUE ("id_compet_priz"),
+
+     CONSTRAINT "id_competition_priz_ID_fkey" FOREIGN KEY ("id_competition")
+        REFERENCES "Конкурсы" ("id_competition") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    
+     CONSTRAINT "id_victory_compet_pr_ID_fkey" FOREIGN KEY ("id_victory")
+        REFERENCES "Призёры" ("id_victory") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);

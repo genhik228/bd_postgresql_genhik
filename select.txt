@@ -1,0 +1,72 @@
+
+select a."Название кинотеатра", a."Адресс кинотеатра" from public."Кинотеатр"  as a INNER JOIN  public."Кино залы" as b 
+ON b."id_theater_cinema" = a."id_theater_cinema" where b."Тип экрана" ='2D';
+
+select a."Имя", a."Фамилия" from public."Артист" as a, public."Жанры" as b, public."Виды жанров для артиста"  as c 
+where b."Название жанра" = 
+(select public."Жанры"."Название жанра" from public."Жанры" where public."Жанры"."Название жанра" = 'Шоумен') 
+group by a."id_artist";
+
+
+select COUNT(a."id_artist"), a."Имя", a."Фамилия"
+from public."Артист" as a 
+inner join 
+public."Продюссирование" as b 
+on a."id_artist" = b."id_artist" 
+inner join public."Импрессарио" as c 
+on c."id_impressario" = b."id_impressario"
+group by a."id_artist",a."Имя", a."Фамилия" having COUNT(a."id_artist") > 1;
+
+
+select  a."Имя", a."Фамилия", COUNT( c."id_genre")
+from public."Артист" as a 
+inner join 
+public."Виды жанров для артиста" as b  
+on b."id_artist" = a."id_artist"
+inner join public."Жанры" as c
+on b."id_genre" = c."id_genre"
+group by a."Имя", a."Фамилия" having  COUNT( c."id_genre") > 1
+
+
+select c."Имя", c."Фамилия"
+from public."Артист" as a 
+inner join 
+public."Продюссирование" as b 
+on a."id_artist" = b."id_artist" 
+inner join public."Импрессарио" as c 
+on c."id_impressario" = b."id_impressario"
+where a."Имя" = 'Сергей' and a."Фамилия"  = 'Светлаков'
+
+
+select * from public."Мероприятие"
+where "Время начала Мероприятия" >= '2021-02-10' AND "Время начала Мероприятия" <= '2021-02-20' 
+
+
+select c."Имя победителя", c."Занятое место" from public."Конкурсы" as a 
+inner join public."Виды конкурса и призёров" as b
+on a."id_competition" = b."id_competition"
+inner join public."Призёры" as c
+on  c."id_victory" = b."id_victory"
+where a."Название конкурса" = 'Импровизация'
+
+select "Название Мероприятия" from public."Мероприятие" where "Тип Мероприятия" = 'Концерт'
+
+
+select a."Имя", a."Фамилия" from public."Артист" as a 
+where a."id_artist" not in 
+(select "id_artist" from public."Мероприятие" as b, public."Виды мероприятий  для артиста" as c
+ where b."Тип Мероприятия" ='Конкурс' and c."id_event" = b."id_event" and 
+b."Время начала Мероприятия" >= '2021-02-10' AND b."Время начала Мероприятия" <= '2021-02-20')
+
+select COUNT("Организатор"),"Организатор" from public."Мероприятие" as b where
+b."Время начала Мероприятия" >= '2021-02-10' AND b."Время начала Мероприятия" <= '2021-02-20' 
+group by "Организатор"
+
+
+select  a."Название кинотеатра", c."Название Мероприятия", c."Время начала Мероприятия"
+from public."Кинотеатр" as a inner join public."Мероприятие для кино" as b
+on a."id_theater_cinema" = b."id_theater_cinema"
+inner join public."Мероприятие" as c
+on b."id_event" = c."id_event"
+where
+c."Время начала Мероприятия" >= '2021-02-10 ' AND c."Время начала Мероприятия" <= '2021-02-20' 

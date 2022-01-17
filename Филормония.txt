@@ -1,0 +1,124 @@
+CREATE TABLE public."PERSON"
+(
+    "ID" uuid NOT NULL DEFAULT gen_random_uuid(),
+    "Name" text COLLATE pg_catalog."default",
+    "Surname" text COLLATE pg_catalog."default",
+    "Patronymic" text COLLATE pg_catalog."default",
+    "Birthdate" date,
+    "Gender" character varying(1) COLLATE pg_catalog."default",
+    "Passport_ID" text COLLATE pg_catalog."default",
+    "Note" text COLLATE pg_catalog."default",
+    CONSTRAINT "PERSON_pkey" PRIMARY KEY ("ID"),
+    CONSTRAINT "PERSON_ID_key" UNIQUE ("ID"),
+    CONSTRAINT "Check_gender" CHECK ("Gender"::text = 'M'::text OR "Gender"::text = 'F'::text)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public."PERSON"
+    OWNER to ИМЯ ТВОЕЙ БД;
+
+COMMENT ON TABLE public."PERSON"
+    IS 'This table stores data about real people: full name, passport data, reasons for interest, and so on';
+
+
+CREATE TABLE public."ACCOUNT"
+(
+    "ID" uuid NOT NULL DEFAULT gen_random_uuid(),
+    "Name" text COLLATE pg_catalog."default" NOT NULL,
+    "Surname" text COLLATE pg_catalog."default" NOT NULL,
+    "Is_closed" boolean,
+    "Country" text COLLATE pg_catalog."default",
+    "City" text COLLATE pg_catalog."default",
+    "Birthdate" date,
+    "Nickname" text COLLATE pg_catalog."default",
+    "Person_ID" uuid,
+    "Sex" character varying(1) COLLATE pg_catalog."default",
+    "User_ID" bigint NOT NULL,
+    "Screen_name" text COLLATE pg_catalog."default",
+    "Photo_ID" bigint,
+    "Deactivated" boolean,
+    CONSTRAINT "ACCOUNT_pkey" PRIMARY KEY ("ID"),
+    CONSTRAINT "ACCOUNT_ID_key" UNIQUE ("ID"),
+    CONSTRAINT "ACCOUNT_User_ID_key" UNIQUE ("User_ID"),
+    CONSTRAINT "ACCOUNT_Person_ID_fkey" FOREIGN KEY ("Person_ID")
+        REFERENCES public."PERSON" ("ID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT "Check_gender" CHECK ("Sex"::text = 'M'::text OR "Sex"::text = 'F'::text)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public."ACCOUNT"
+    OWNER to ИМЯ ТВОЕЙ БД;
+
+COMMENT ON TABLE public."ACCOUNT"
+    IS 'This table stores information about social network user accounts';
+
+
+CREATE TABLE public."PHOTO"
+(
+    "ID" uuid NOT NULL DEFAULT gen_random_uuid(),
+    "Account_ID" bigint,
+    "Album_ID" bigint,
+    "Comment_count" integer,
+    "Likes" integer,
+    "Reposts" smallint,
+    "Caption" text COLLATE pg_catalog."default",
+    "Photo_ID" bigint,
+    "Date" timestamp without time zone,
+    "User_tag" boolean,
+    "URL" text COLLATE pg_catalog."default",
+    "Tag_coordinates" double precision[],
+    "Has_face" boolean,
+    CONSTRAINT "Photo_pkey" PRIMARY KEY ("ID"),
+    CONSTRAINT "PHOTO_Account_ID_Photo_ID_key" UNIQUE ("Account_ID", "Photo_ID"),
+    CONSTRAINT "PHOTO_ID_key" UNIQUE ("ID"),
+    CONSTRAINT "PHOTO_Account_ID_fkey" FOREIGN KEY ("Account_ID")
+        REFERENCES public."ACCOUNT" ("User_ID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public."PHOTO"
+    OWNER to ИМЯ ТВОЕЙ БД;
+
+COMMENT ON TABLE public."PHOTO"
+    IS 'This table stores information about photos';
+
+
+CREATE TABLE public."FACE"
+(
+    "ID" uuid NOT NULL DEFAULT gen_random_uuid(),
+    "Photo_ID" uuid NOT NULL,
+    "Person_ID" uuid,
+    "Blur" smallint,
+    "Placeholder" double precision[],
+    "Coordinates" smallint[],
+    "Face_num" smallint,
+    "Embedding" double precision[],
+    CONSTRAINT "FACE_pkey" PRIMARY KEY ("ID"),
+    CONSTRAINT "FACE_ID_key" UNIQUE ("ID"),
+    CONSTRAINT "FACE_Photo_ID_Face_num_key" UNIQUE ("Photo_ID", "Face_num"),
+    CONSTRAINT "FACE_Person_ID_fkey" FOREIGN KEY ("Person_ID")
+        REFERENCES public."PERSON" ("ID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID,
+    CONSTRAINT "FACE_Photo_ID_fkey" FOREIGN KEY ("Photo_ID")
+        REFERENCES public."PHOTO" ("ID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public."FACE"
+    OWNER to ИМЯ ТВОЕЙ БД;
+
+COMMENT ON TABLE public."FACE"
+    IS 'This table stores information about the faces found in photos';
